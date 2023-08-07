@@ -1,0 +1,8 @@
+race,white
+religion,Christian
+gender,female
+lang,EN
+ageMin,45
+ageMax,50
+interest,health conscious
+fromState,NJ
