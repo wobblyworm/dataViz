@@ -1,8 +1,10 @@
-race,white
-religion,Christian
-gender,female
-lang,EN
+persona_name,"neutral"
+persona_description,"most common characteristics of US population"
+race,"white"
+religion,"Christian"
+gender,"female"
+lang,"EN"
 ageMin,45
 ageMax,50
-interest,health conscious
-fromState,NJ
+interest,"health conscious"
+fromState,"NJ"
