@@ -1,6 +1,7 @@
 # Where to start
 
-1. Run surveyMgr.py (necessary files are hardcoded.. for now)
-2. From the text menu go to (S)elect languages for VHS
-3. select (0) all  or any of the specific available languages
-4. Output will be written to `covid-Lewandowsky13.dat` by default
+1. In "config.py" enter your own OpenAI API key.
+2. Run surveyMgr.py (necessary files are hardcoded.. for now)
+3. From the text menu go to (S)elect languages for VHS
+4. select (0) all  or any of the specific available languages
+5. Output will be written to `covid-Lewandowsky13.dat` by default
