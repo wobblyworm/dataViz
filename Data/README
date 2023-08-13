@@ -1,0 +1,6 @@
+# Where to start
+
+1. Run surveyMgr.py (necessary files are hardcoded.. for now)
+2. From the text menu go to (S)elect languages for VHS
+3. select (0) all  or any of the specific available languages
+4. Output will be written to `covid-Lewandowsky13.dat` by default

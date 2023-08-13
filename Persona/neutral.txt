@@ -1,10 +1,10 @@
-persona_name,"neutral"
-persona_description,"most common characteristics of US population"
-race,"white"
-religion,"Christian"
-gender,"female"
-lang,"EN"
-ageMin,45
-ageMax,50
-interest,"health conscious"
-fromState,"NJ"
+"persona_name","neutral"
+"persona_description","most common characteristics of US population"
+"race","white"
+"religion","Christian"
+"gender","female"
+"langPref","EN-US"
+"ageMin",45
+"ageMax",50
+"interest","health and fitness enthusiast"
+"fromState","NJ"
