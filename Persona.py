@@ -27,18 +27,19 @@ class Persona:
         if lang == "ES-US":
             txt += 'Soy una mujer blanca cristiana de ' + self.characteristics['fromState']
             txt += '. En cuanto a la edad, tengo ' + self.characteristics['ageMin']
-            txt += ' años. ' + 'Soy una entusiasta de la salud y el fitness. '
+            txt += ' años. '# + 'Soy una entusiasta de la salud y el fitness. '
         elif lang == "EN-US":
             txt += 'I am a ' + self.characteristics['ageMin'] + ' year old '
             txt += self.characteristics['religion'] + ' ' + self.characteristics['race']
             txt += ' ' + self.characteristics['gender'] + ' from ' +  self.characteristics['fromState']
-            txt += '. I am a ' +  self.characteristics['interest'] + '.'
+            txt += '.'# + I am a ' +  self.characteristics['interest'] + '.'
         elif lang == "FR-CA":
             txt += "Je suis une femme blanche chrétienne de " + self.characteristics['fromState']
             txt += ". En termes d’âge, j’ai " + self.characteristics['ageMin']
-            txt += ' ans.' + ' Je suis un passionné de santé et de remise en forme.'
+            txt += ' ans.'# + ' Je suis un passionné de santé et de remise en forme.'
         return txt
 
+# Examples
 # persona = "I am female. I am African. In terms of age, I am between 28 and 39 years old. "
 # context = "I consider whether I get vaccinated if a COVID-19 vaccine is available. How much do you agree with the each of the following statement on vaccinations?: "
 # likert5Choices = " Please give me only one answer: Strongly disagree Disagree Neither agree nor disagree Agree Strongly agree"
@@ -47,6 +48,8 @@ class Persona:
 
 
 class Person:
+    # TODO: integrate class Person to determine Persona of individual
+
     def __init__(self):
         self.name = ""
         self.fromState = ""

@@ -79,11 +79,11 @@ class VHSsurvey:
 
 	def buildPrompt(self, lang):
 		context = {
-			'EN-US': ['''\nI consider whether I get vaccinated if a COVID-19 vaccine is available.\nHow much do you agree with the each of the following statements on vaccinations?\n\n''',
-                '''\nPlease give me only one answer for each statement:\n\tStrongly disagree, Disagree, Neither Agree or Disagree, Agree, Strongly agree'''],
+			'EN-US': ['''\nI am considering whether I should get vaccinated for COVID-19. How much do you agree with each of the following statements on vaccinations?\n\n''',
+                '''\nPlease give me only one answer for each statement:\n\tStrongly disagree, Disagree, Neither agree or disagree, Agree, Strongly agree'''],
         	'ES-US': ['''Estoy considerando vacunarme contra el COVID-19.\n¿Qué tan de acuerdo está con cada una de las siguientes afirmaciones sobre las vacunas?\n\n''',
         		'''\nPor favor, dame una sola respuesta para cada afirmación:\n\tTotalmente de acuerdo, De acuerdo, Ni de acuerdo ni en desacuerdo, En desacuerdo, Totalmente en desacuerdo'''],
-        	'FR-CA': ['''Je me demande si je me fais vacciner si un vaccin contre la COVID-19 est disponible.\nLorsqu’on me demande d’écrire une estimation de la mesure dans laquelle les affirmations suivantes sont vraies ou fausses, comment puis-je répondre avec:\n\n''',
+        	'FR-CA': ['''Je me demande si je me fais vacciner si un vaccin contre la COVID-19 est disponible.\nÀ quel point êtes-vous d’accord ou en désaccord avec chacune des déclarations suivantes concernant la vaccination?\n\n''',
                 '''\nVeuillez me donner une seule réponse pour chaque énoncé :\nPas du tout d’accord, Pas d’accord, Ni d’accord ni en désaccord, D’accord, Tout à fait d’accord''']
         	}
 		
@@ -95,7 +95,7 @@ class VHSsurvey:
 		if os.path.exists(filepath):
 			f = open(filepath,'a',encoding='UTF-8')
 		else:
-			f = open(filepath,'w')
+			f = open(filepath,'w', encoding='UTF-8')
 
 		f.write(dat)
 		f.close()
@@ -160,31 +160,32 @@ class VHSsurvey:
 					print(f'{i+1}.) {k}')
 					self.langList.append(k)
 
-				#try:
-				whichLang = int(input('\nWhich language? '))
-				if whichLang == 0:
-					self.theVHSlang = 'all'
-					#self.listAllQuestions()
-					for langItem in self.langList:
-						prompt = self.buildPrompt(langItem)
+				try:
+					whichLang = int(input('\nWhich language? '))
+					if whichLang == 0:
+						self.theVHSlang = 'all'
+						#self.listAllQuestions()
+						for langItem in self.langList:
+							prompt = self.buildPrompt(langItem)
+							print(prompt)
+							gg = gpt.Gpt()
+							datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
+							self.fileDat(datCSV)
+					else: 
+						print('\nChosen language: ', self.langList[whichLang-1])
+						self.theVHSlang = self.langList[whichLang-1]
+						#print(self.stringifyQuestions(self.theVHSlang))
+						
+						prompt = self.buildPrompt(self.theVHSlang)
 						print(prompt)
-						gg = gpt.Gpt()
-						datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
+						g = gpt.Gpt()
+						g.ask_gpt(prompt, self.theVHSlang)
+						datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
 						self.fileDat(datCSV)
-				else:
-					print('\nChosen language: ', self.langList[whichLang-1])
-					self.theVHSlang = self.langList[whichLang-1]
-					#print(self.stringifyQuestions(self.theVHSlang))
-					
-					prompt = self.buildPrompt(self.theVHSlang)
-					g = gpt.Gpt()
-					g.ask_gpt(prompt, self.theVHSlang)
-					datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
-					self.fileDat(datCSV)
 
-				#except Exception as e:
-				#	print('Error: ', type(e).__name__, e)
-				#	print('\nPlease try again (choose from list)')
+				except Exception as e:
+					print('Error: ', type(e).__name__, e)
+					print('\nPlease try again (choose from list)')
 
 			else:
 				self.menu_error()
