@@ -13,6 +13,7 @@ valEN ={
     'strongly agree': 1,
     'agree': 2,
     'neither agree or disagree': 3,
+    'neither agree nor disagree': 3,
     'disagree': 4,
     'strongly disagree': 5
 }
@@ -39,14 +40,20 @@ valFR ={
 }
 
 
-def responseVal(lang, ans):
+def responseVal(lang, ans, reversed):
     q = ans.rstrip().lstrip().lower()
     if lang == 'EN-US':
-        return valEN[q]
+        if reversed:
+            return valEN[q]
+        else: return 6-valEN[q]
     elif lang == 'ES-US':
-        return valES[q]
+        if reversed:
+            return valES[q]
+        else: return 6-valES[q]
     elif lang == 'FR-CA':
-        return valFR[q]
+        if reversed:
+            return valFR[q]
+        else: return 6-valFR[q]
     else:
         raise ('Language mismatch error in AnalysisMgr')
 
@@ -84,21 +91,23 @@ datQ = {1:{'EN-US': {1:0,2:0,3:0,4:0,5:0},
 numLang = {'EN-US': 0, 'ES-US': 0, 'FR-CA': 0}
 
 def ansSum():
+    qReverse = ['reverseCheck', True, True, True, True, False, True, True, True, False, False]
     #datPath = os.path.abspath(os.path.curdir) + '/' + config.PATH_DATA + config.FILE_DATA
-    datPath = os.path.abspath(os.path.curdir) + '/' + config.PATH_DATA + 'covid-Lewandowsky13-srj.dat'
+    datPath = os.path.abspath(os.path.curdir) + '/' + config.PATH_DATA + config.FILE_DATA
     print(datPath)
     with open(datPath,'r') as d:
         dat = reader(d)
-        txt = 'lang,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10'
+        txt = 'lang,qr1,qr2,qr3,qr4,q5,qr6,qr7,qr8,q9,q10'
         for line in dat:
             lang = line[0]
             numLang[lang] += 1
+
             txt += f'\n{lang}'
             for i, q in enumerate(line):
                 if i == 0:
                     pass
                 else:
-                    val = responseVal(lang, q.lstrip().rstrip().lower())
+                    val = responseVal(lang, q.lstrip().rstrip().lower(), qReverse[i])
                     #print(val)
                     datQ[i][lang][val] += 1
                     txt += f',{val}'
@@ -124,9 +133,10 @@ langList = ['EN-US', 'ES-US', 'FR-CA']
 qList = [1,2,3,4,5,6,7,8,9,10]
 ansList = [1,2,3,4,5]
 
-numQ = {}
-lang = 'FR-CA'
-q = 2
+# numQ = {}
+# lang = 'FR-CA'
+# q = 2
+
 sum=0
 for q in qList:
     for lang in langList:

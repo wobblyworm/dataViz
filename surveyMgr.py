@@ -168,9 +168,9 @@ class VHSsurvey:
 						for langItem in self.langList:
 							prompt = self.buildPrompt(langItem)
 							print(prompt)
-							gg = gpt.Gpt()
-							datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
-							self.fileDat(datCSV)
+							# gg = gpt.Gpt()
+							# datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
+							# self.fileDat(datCSV)
 					else: 
 						print('\nChosen language: ', self.langList[whichLang-1])
 						self.theVHSlang = self.langList[whichLang-1]
@@ -178,10 +178,10 @@ class VHSsurvey:
 						
 						prompt = self.buildPrompt(self.theVHSlang)
 						print(prompt)
-						g = gpt.Gpt()
-						g.ask_gpt(prompt, self.theVHSlang)
-						datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
-						self.fileDat(datCSV)
+						# g = gpt.Gpt()
+						# g.ask_gpt(prompt, self.theVHSlang)
+						# datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
+						# self.fileDat(datCSV)
 
 				except Exception as e:
 					print('Error: ', type(e).__name__, e)
