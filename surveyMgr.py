@@ -25,7 +25,7 @@ class VHSsurvey:
 		self.langList = []
 		self.theGpt = None
 		self.theVHSresults = dict()
-		self.theOrder = [0,1,2,3,4,5,6,7,8,9]
+		self.theOrder = [0,1,2,3,4,5,6,7,8]
 					
 	def startup(self):
 		self.greeting()
@@ -73,7 +73,7 @@ class VHSsurvey:
 	def stringifyQuestions(self, lang):
 		outText = ''
 		#for i in range (0,len(self.theVHSquestions)):
-		for i in self.theOrder:
+		for i, j in enumerate(self.theOrder):
 			outText += f'{i+1}. "{self.getQuestion(lang,i)}"\n'
 		return outText
 
@@ -82,15 +82,16 @@ class VHSsurvey:
 
 	def buildPrompt(self, lang):
 		context = {
-			'EN-US': ['''\nI am considering whether I should get vaccinated for COVID-19. How much do you agree with each of the following statements on vaccinations?\n\n''',
-                '''\nPlease give me only one answer for each statement:\n\tStrongly disagree, Disagree, Neither agree or disagree, Agree, Strongly agree'''],
-        	'ES-US': ['''Estoy considerando vacunarme contra el COVID-19.\n¿Qué tan de acuerdo está con cada una de las siguientes afirmaciones sobre las vacunas?\n\n''',
-        		'''\nPor favor, dame una sola respuesta para cada afirmación:\n\tTotalmente de acuerdo, De acuerdo, Ni de acuerdo ni en desacuerdo, En desacuerdo, Totalmente en desacuerdo'''],
-        	'FR-CA': ['''Je me demande si je me fais vacciner si un vaccin contre le COVID-19 est disponible.\nÀ quel point êtes-vous d’accord ou en désaccord avec chacune des déclarations suivantes concernant la vaccination?\n\n''',
-                '''\nVeuillez me donner une seule réponse pour chaque énoncé :\nPas du tout d’accord, Pas d’accord, Ni d’accord ni en désaccord, D’accord, Tout à fait d’accord''']
+			'EN-US': ['''\nHow much do you agree with each of the following statements on vaccinations? ''',
+                '''Please give me only one answer for each statement:\n\tStrongly disagree, Disagree, Neither agree or disagree, Agree, Strongly agree\n\n'''],
+        	'ES-US': ['''\n¿Qué tan de acuerdo está con cada una de las siguientes afirmaciones sobre las vacunas? ''',
+        		'''Por favor, dame una sola respuesta para cada afirmación:\n\tTotalmente de acuerdo, De acuerdo, Ni de acuerdo ni en desacuerdo, En desacuerdo, Totalmente en desacuerdo\n\n'''],
+        	'FR-CA': ['''Dans quelle mesure êtes-vous d’accord avec chacune des affirmations suivantes concernant les vaccins? ''',
+                '''Veuillez me donner une seule réponse pour chaque affirmation:\n\tTout à fait d'accord, D'accord, Ni d'accord ni en désaccord, En désaccord, Fortement en désaccord\n\n''']
         	}
 		
-		query = self.thePersona.displayPersona(lang) + context[lang][0] + self.stringifyQuestions(lang)+ context[lang][1]
+		#query = self.thePersona.displayPersona(lang) + context[lang][0] + self.stringifyQuestions(lang)+ context[lang][1]
+		query = context[lang][0] + context[lang][1] + self.stringifyQuestions(lang)
 		return(query)
 
 	def fileDat(self, dat):
@@ -106,7 +107,7 @@ class VHSsurvey:
 
 	def csvifyResult(self, result, lang):
 		txt = result
-		temp=['','','','','','','','','','']
+		temp=['','','','','','','','','']
 		wlist = (re.sub("[.0-9]","",txt).strip().replace('\n',',')).split(',')
 		#print(wlist)
 		output = self.stringifyOrder() + ',' + lang + ','

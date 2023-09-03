@@ -35,8 +35,11 @@ valFR ={
     "ni dâ€™accord ni en dã©saccord": 3,
     "pas d'accord": 4,
     "pas dâ€™accord": 4,
+    "En dÃ©saccord": 4,
+    "en dã©saccord": 4,
     "pas du tout d'accord": 5,
-    "pas du tout dâ€™accord": 5
+    "pas du tout dâ€™accord": 5,
+    "fortement en dã©saccord": 5
 }
 
 
@@ -83,10 +86,7 @@ datQ = {1:{'EN-US': {1:0,2:0,3:0,4:0,5:0},
            'FR-CA': {1:0,2:0,3:0,4:0,5:0}},
         9:{'EN-US': {1:0,2:0,3:0,4:0,5:0},
            'ES-US': {1:0,2:0,3:0,4:0,5:0},
-           'FR-CA': {1:0,2:0,3:0,4:0,5:0}},
-        10:{'EN-US': {1:0,2:0,3:0,4:0,5:0},
-            'ES-US': {1:0,2:0,3:0,4:0,5:0},
-            'FR-CA': {1:0,2:0,3:0,4:0,5:0}}}
+           'FR-CA': {1:0,2:0,3:0,4:0,5:0}}}
 
 numLang = {'EN-US': 0, 'ES-US': 0, 'FR-CA': 0}
 
@@ -97,31 +97,39 @@ def ansSum():
     print(datPath)
     with open(datPath,'r') as d:
         dat = reader(d)
-        txt = 'lang,qr1,qr2,qr3,qr4,q5,qr6,qr7,qr8,q9,q10'
+        txt = 'lang,qr1,qr2,qr3,qr4,q5,qr6,qr7,qr8,q9'
         for line in dat:
-            lang = line[0]
+            #print(line)
+            lang = line[1].upper()
+            #print(lang)
             numLang[lang] += 1
 
             txt += f'\n{lang}'
             for i, q in enumerate(line):
-                if i == 0:
+                if i in (0,1):
+                    #print('i: ' + str(i) + ' q:' + q)
                     pass
                 else:
-                    val = responseVal(lang, q.lstrip().rstrip().lower(), qReverse[i])
+                    idx = i-2
+                    #print('i: ' + str(i) + ' q:' + q)
+                    val = responseVal(lang, q.lstrip().rstrip().lower(), qReverse[idx])
                     #print(val)
-                    datQ[i][lang][val] += 1
+                    datQ[idx+1][lang][val] += 1
                     txt += f',{val}'
     return txt
 
 
 # datQ[2]['EN-US'][5] += 1
 # datQ[2]['EN-US'][5] += 1
-print(datQ)
+# print(datQ)
 
 outFile = f'{config.PATH_APP}{config.PATH_ANA}{config.FILE_DATA[:-4]}-encoded.csv'
 print(outFile)
 if os.path.exists(outFile):
     print('The encoded file was previously saved to: ' + outFile)
+    # with open(outFile,'a') as outf:
+    #     print('The encoded file has been saved to: ' + outFile)
+    #     outf.write(ansSum())
 else:
     with open(outFile,'w') as outf:
         print('The encoded file has been saved to: ' + outFile)
@@ -130,13 +138,13 @@ else:
 
 
 langList = ['EN-US', 'ES-US', 'FR-CA']
-qList = [1,2,3,4,5,6,7,8,9,10]
+qList = [1,2,3,4,5,6,7,8,9]
 ansList = [1,2,3,4,5]
 
 # numQ = {}
 # lang = 'FR-CA'
 # q = 2
-
+print('\n\n=======Verification===========\n')
 sum=0
 for q in qList:
     for lang in langList:
@@ -144,4 +152,5 @@ for q in qList:
             sum += datQ[q][lang][ans]
 
 print(sum)
+print(numLang)
 
