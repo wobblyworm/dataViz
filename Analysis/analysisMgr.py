@@ -91,7 +91,7 @@ datQ = {1:{'EN-US': {1:0,2:0,3:0,4:0,5:0},
 numLang = {'EN-US': 0, 'ES-US': 0, 'FR-CA': 0}
 
 def ansSum():
-    qReverse = ['reverseCheck', True, True, True, True, False, True, True, True, False, False]
+    qReverse = [True, True, True, True, False, True, True, True, False]
     #datPath = os.path.abspath(os.path.curdir) + '/' + config.PATH_DATA + config.FILE_DATA
     datPath = os.path.abspath(os.path.curdir) + '/' + config.PATH_DATA + config.FILE_DATA
     print(datPath)
@@ -111,9 +111,8 @@ def ansSum():
                     pass
                 else:
                     idx = i-2
-                    #print('i: ' + str(i) + ' q:' + q)
                     val = responseVal(lang, q.lstrip().rstrip().lower(), qReverse[idx])
-                    #print(val)
+                    #print('i: "' + str(idx) + '" q: "' + q + '" Reverse: "'+ str(qReverse[idx]) + '" val: ' + str(val))
                     datQ[idx+1][lang][val] += 1
                     txt += f',{val}'
     return txt
@@ -154,3 +153,4 @@ for q in qList:
 print(sum)
 print(numLang)
 
+# ansSum() # for debug

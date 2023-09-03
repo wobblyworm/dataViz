@@ -106,6 +106,10 @@ class VHSsurvey:
 			
 
 	def csvifyResult(self, result, lang):
+		'''
+		Takes lines of response from GPT and saves randomized
+		response sequence (self.theOrder) to serial CSV sequence.
+		'''
 		txt = result
 		temp=['','','','','','','','','']
 		wlist = (re.sub("[.0-9]","",txt).strip().replace('\n',',')).split(',')
