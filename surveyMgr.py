@@ -72,7 +72,7 @@ class VHSsurvey:
 		outText = ''
 		#for i in range (0,len(self.theVHSquestions)):
 		for i, j in enumerate(self.theOrder):
-			outText += f'{i+1}. "{self.getQuestion(lang,i)}"\n'
+			outText += f'{i+1}. "{self.getQuestion(lang,j)}"\n'
 		return outText
 
 	def getQuestion(self, lang, id):
@@ -110,7 +110,16 @@ class VHSsurvey:
 		f.write(dat)
 		f.close()
 
-	def fileRaw(self, dat):
+	def fileRaw(self, result, language):
+
+		#session = d.datetime.now().strftime("%Y%m%d%H%m") + '_' + str(r.random())[-6:]
+		session = d.datetime.now().strftime("%Y%m%d%H%m") + '_' + language + '_' + self.stringifyOrder()
+		dat = '\n\n====\n'
+		dat += session
+		dat += '\n----\n\n'
+		dat += result
+		
+
 		filepath = f'{config.PATH_DATA}{config.FILE_RAW}'
 		if os.path.exists(filepath):
 			f = open(filepath,'a',encoding='UTF-8')
@@ -125,13 +134,7 @@ class VHSsurvey:
 		Takes lines of response from GPT and saves randomized
 		response sequence (self.theOrder) to serial CSV sequence.
 		'''
-		#session = d.datetime.now().strftime("%Y%m%d%H%m") + '_' + str(r.random())[-6:]
-		session = d.datetime.now().strftime("%Y%m%d%H%m") + '_' + self.stringifyOrder()
-		dat = '\n\n====\n'
-		dat += session
-		dat += '\n----\n\n'
-		dat += result
-		self.fileRaw(dat)
+		self.fileRaw(result, lang)
 
 		txt = result
 		temp=['','','','','','','','','']
@@ -208,13 +211,18 @@ class VHSsurvey:
 							prompt = self.buildPrompt(langItem)
 							print(prompt)
 							gg = gpt.Gpt()
-							if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):
+							#if config.GPT_ENGINE == 'gpt-3.5-turbo':
+							if config.GPT_ENGINE in ('gpt-3.5-turbo', 'gpt-4'):
 								datCSV = self.csvifyResult(gg.do_chat(prompt),langItem)
 							elif config.GPT_ENGINE == 'text-davinci-003':
 								datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
+							# elif config.GPT_ENGINE == 'gpt-4':
+							# 	self.fileRaw(gg.do_chat(prompt), langItem)
 							else:
 								raise Exception("Configuration of GPT engine error!!!")
 
+							#if config.GPT_ENGINE != 'gpt-4':
+							
 							self.fileDat(datCSV)
 					else: 
 						print('\nChosen language: ', self.langList[whichLang-1])
@@ -224,13 +232,18 @@ class VHSsurvey:
 						prompt = self.buildPrompt(self.theVHSlang)
 						print(prompt)
 						g = gpt.Gpt()
-						if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):
+						#if config.GPT_ENGINE == 'gpt-3.5-turbo':
+						if config.GPT_ENGINE in ('gpt-3.5-turbo', 'gpt-4'):
 							datCSV = self.csvifyResult(g.do_chat(prompt),self.theVHSlang)
 						elif config.GPT_ENGINE == 'text-davinci-003':
 							datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
+						# elif config.GPT_ENGINE == 'gpt-4':
+						# 	self.fileRaw(g.do_chat(prompt), self.theVHSlang)
 						else:
 							raise Exception("Configuration of GPT engine error!!!")
 						
+						#if config.GPT_ENGINE != 'gpt-4':
+
 						self.fileDat(datCSV)
 
 				except Exception as e:
