@@ -45,6 +45,7 @@ valFR ={
 
 def responseVal(lang, ans, reversed):
     q = ans.rstrip().lstrip().lower()
+    #print('ans: ' + ans)
     if lang == 'EN-US':
         if reversed:
             return valEN[q]
@@ -99,7 +100,7 @@ def ansSum():
         dat = reader(d)
         txt = 'lang,qr1,qr2,qr3,qr4,q5,qr6,qr7,qr8,q9'
         for line in dat:
-            #print(line)
+            print(line)
             lang = line[1].upper()
             #print(lang)
             numLang[lang] += 1
@@ -112,7 +113,7 @@ def ansSum():
                 else:
                     idx = i-2
                     val = responseVal(lang, q.lstrip().rstrip().lower(), qReverse[idx])
-                    #print('i: "' + str(idx) + '" q: "' + q + '" Reverse: "'+ str(qReverse[idx]) + '" val: ' + str(val))
+                    #print('i: "' + str(idx) + '" q: "' + q.strip().rstrip().lower() + '" Reverse: "'+ str(qReverse[idx]) + '" val: ' + str(val))
                     datQ[idx+1][lang][val] += 1
                     txt += f',{val}'
     return txt
