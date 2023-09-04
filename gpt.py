@@ -28,6 +28,19 @@ class Gpt:
 
         return response.choices[0].text
     
+    def do_chat(self, thePromptList):
+
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": thePromptList['system']},
+                {"role": "user", "content": thePromptList['user']}
+                ]
+            )
+
+        return response['choices'][0]['message']['content']
+
+
 
 # if __name__ == "__main__":
 

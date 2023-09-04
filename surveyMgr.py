@@ -2,10 +2,9 @@ import os
 import persona
 import config
 from csv import DictReader
-import random
 import gpt
-#import datetime as d
-#import random as r
+import datetime as d
+import random as r
 import re
 #from dataclasses import dataclass
 
@@ -14,7 +13,6 @@ import re
 # 	id : int
 # 	lang : str = "EN-US"
 # 	question : str
-
 
 class VHSsurvey:
 	def __init__(self):
@@ -81,17 +79,25 @@ class VHSsurvey:
 		return self.theVHSquestions[id][lang]
 
 	def buildPrompt(self, lang):
+		
 		context = {
 			'EN-US': ['''\nHow much do you agree with each of the following statements on vaccinations? ''',
-                '''Please give me only one answer for each statement:\n\tStrongly disagree, Disagree, Neither agree or disagree, Agree, Strongly agree\n\n'''],
-        	'ES-US': ['''\n¿Qué tan de acuerdo está con cada una de las siguientes afirmaciones sobre las vacunas? ''',
-        		'''Por favor, dame una sola respuesta para cada afirmación:\n\tTotalmente de acuerdo, De acuerdo, Ni de acuerdo ni en desacuerdo, En desacuerdo, Totalmente en desacuerdo\n\n'''],
-        	'FR-CA': ['''Dans quelle mesure êtes-vous d’accord avec chacune des affirmations suivantes concernant les vaccins? ''',
-                '''Veuillez me donner une seule réponse pour chaque affirmation:\n\tTout à fait d'accord, D'accord, Ni d'accord ni en désaccord, En désaccord, Fortement en désaccord\n\n''']
-        	}
-		
+				'''Please give me only one answer for each statement:\n\tStrongly disagree, Disagree, Neither agree or disagree, Agree, Strongly agree\n\n'''],
+			'ES-US': ['''\n¿Qué tan de acuerdo está con cada una de las siguientes afirmaciones sobre las vacunas? ''',
+				'''Por favor, dame una sola respuesta para cada afirmación:\n\tTotalmente de acuerdo, De acuerdo, Ni de acuerdo ni en desacuerdo, En desacuerdo, Totalmente en desacuerdo\n\n'''],
+			'FR-CA': ['''Dans quelle mesure êtes-vous d’accord avec chacune des affirmations suivantes concernant les vaccins? ''',
+				'''Veuillez me donner une seule réponse pour chaque affirmation:\n\tTout à fait d'accord, D'accord, Ni d'accord ni en désaccord, En désaccord, Fortement en désaccord\n\n''']
+			}
 		#query = self.thePersona.displayPersona(lang) + context[lang][0] + self.stringifyQuestions(lang)+ context[lang][1]
-		query = context[lang][0] + context[lang][1] + self.stringifyQuestions(lang)
+
+		if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):			
+			query = {'system': context[lang][0] + context[lang][1],
+			'user': self.stringifyQuestions(lang) }
+		elif config.GPT_ENGINE == 'text-davinci-003':
+			query = context[lang][0] + context[lang][1] + self.stringifyQuestions(lang)
+		else:
+			raise Exception("Configuration of GPT engine error!!!")
+	
 		return(query)
 
 	def fileDat(self, dat):
@@ -103,13 +109,30 @@ class VHSsurvey:
 
 		f.write(dat)
 		f.close()
-			
+
+	def fileRaw(self, dat):
+		filepath = f'{config.PATH_DATA}{config.FILE_RAW}'
+		if os.path.exists(filepath):
+			f = open(filepath,'a',encoding='UTF-8')
+		else:
+			f = open(filepath,'w', encoding='UTF-8')
+
+		f.write(dat)
+		f.close()
 
 	def csvifyResult(self, result, lang):
 		'''
 		Takes lines of response from GPT and saves randomized
 		response sequence (self.theOrder) to serial CSV sequence.
 		'''
+		#session = d.datetime.now().strftime("%Y%m%d%H%m") + '_' + str(r.random())[-6:]
+		session = d.datetime.now().strftime("%Y%m%d%H%m") + '_' + self.stringifyOrder()
+		dat = '\n\n====\n'
+		dat += session
+		dat += '\n----\n\n'
+		dat += result
+		self.fileRaw(dat)
+
 		txt = result
 		temp=['','','','','','','','','']
 		wlist = (re.sub("[.0-9]","",txt).strip().replace('\n',',')).split(',')
@@ -181,22 +204,33 @@ class VHSsurvey:
 						self.theVHSlang = 'all'
 						#self.listAllQuestions()
 						for langItem in self.langList:
-							random.shuffle(self.theOrder)
+							r.shuffle(self.theOrder)
 							prompt = self.buildPrompt(langItem)
 							print(prompt)
 							gg = gpt.Gpt()
-							datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
+							if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):
+								datCSV = self.csvifyResult(gg.do_chat(prompt),langItem)
+							elif config.GPT_ENGINE == 'text-davinci-003':
+								datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
+							else:
+								raise Exception("Configuration of GPT engine error!!!")
+
 							self.fileDat(datCSV)
 					else: 
 						print('\nChosen language: ', self.langList[whichLang-1])
 						self.theVHSlang = self.langList[whichLang-1]
 						#print(self.stringifyQuestions(self.theVHSlang))
-						random.shuffle(self.theOrder)
+						r.shuffle(self.theOrder)
 						prompt = self.buildPrompt(self.theVHSlang)
 						print(prompt)
 						g = gpt.Gpt()
-						g.ask_gpt(prompt, self.theVHSlang)
-						datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
+						if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):
+							datCSV = self.csvifyResult(g.do_chat(prompt),self.theVHSlang)
+						elif config.GPT_ENGINE == 'text-davinci-003':
+							datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
+						else:
+							raise Exception("Configuration of GPT engine error!!!")
+						
 						self.fileDat(datCSV)
 
 				except Exception as e:
