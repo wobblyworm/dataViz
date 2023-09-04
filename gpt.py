@@ -14,31 +14,39 @@ class Gpt:
         self.theLang = ''
     
     def getMaxTokens(self, language):
-        tokens = {'EN-US': 75, 'ES-US': 120, 'FR-CA': 140}
+        if config.ASK_ONEONLY:
+            tokens = {'EN-US': 9, 'ES-US': 15, 'FR-CA': 17}
+        else:
+            tokens = {'EN-US': 75, 'ES-US': 120, 'FR-CA': 140}
+
         return tokens[language]
 
     def ask_gpt(self, thePrompt, lang):
         self.theLang = lang
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=thePrompt,
-            max_tokens=self.getMaxTokens(lang),
-            temperature=0.5,
-        )
-
-        return response.choices[0].text
-    
-    def do_chat(self, thePromptList):
-
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": thePromptList['system']},
-                {"role": "user", "content": thePromptList['user']}
-                ]
+        outText = ''
+        if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": thePrompt['cmd']},
+                    {"role": "user", "content": thePrompt['ques']}
+                    ],
+                max_tokens=self.getMaxTokens(lang),
+                temperature=0.5,
             )
+            outText = response['choices'][0]['message']['content']
 
-        return response['choices'][0]['message']['content']
+        elif config.GPT_ENGINE in ('text-davinci-003'):
+            response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=thePrompt,
+                max_tokens=self.getMaxTokens(lang),
+                temperature=0.5,
+            )
+            outText = response.choices[0].text
+        else:
+            raise Exception('config.GPT_ENGINE issues from gpt.py')
+        return outText
 
 
 

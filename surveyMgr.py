@@ -69,13 +69,30 @@ class VHSsurvey:
 		return outText
 	
 	def stringifyQuestions(self, lang):
+		"""
+		Outputs list of randomized questions (using self.theOrder) as
+		string
+		"""
 		outText = ''
-		#for i in range (0,len(self.theVHSquestions)):
 		for i, j in enumerate(self.theOrder):
 			outText += f'{i+1}. "{self.getQuestion(lang,j)}"\n'
 		return outText
+	
+	def listifyQuestions(self, lang):
+		"""
+		Outputs list of randomized questions (using self.theOrder) as
+		list
+		"""
+		outList = []
+		for i, j in enumerate(self.theOrder):
+			outList.append(f'"{self.getQuestion(lang,j)}"\n')
+		return outList
 
 	def getQuestion(self, lang, id):
+		"""
+		Retrieves one specific question by lang and id (using self.theVHSquestions) as
+		string
+		"""
 		return self.theVHSquestions[id][lang]
 
 	def buildPrompt(self, lang):
@@ -88,15 +105,20 @@ class VHSsurvey:
 			'FR-CA': ['''Dans quelle mesure êtes-vous d’accord avec chacune des affirmations suivantes concernant les vaccins? ''',
 				'''Veuillez me donner une seule réponse pour chaque affirmation:\n\tTout à fait d'accord, D'accord, Ni d'accord ni en désaccord, En désaccord, Fortement en désaccord\n\n''']
 			}
-		#query = self.thePersona.displayPersona(lang) + context[lang][0] + self.stringifyQuestions(lang)+ context[lang][1]
 
-		if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):			
-			query = {'system': context[lang][0] + context[lang][1],
-			'user': self.stringifyQuestions(lang) }
-		elif config.GPT_ENGINE == 'text-davinci-003':
-			query = context[lang][0] + context[lang][1] + self.stringifyQuestions(lang)
+		if config.ASK_ONEONLY:
+			query = {'cmd': context[lang][0] + context[lang][1],
+			'ques': self.listifyQuestions(lang)}
 		else:
-			raise Exception("Configuration of GPT engine error!!!")
+			if config.GPT_ENGINE in ('gpt-4', 'gpt-3.5-turbo'):			
+				query = {'system': context[lang][0] + context[lang][1],
+				'user': self.stringifyQuestions(lang) }
+				print(query['system'] + query['user'])
+			elif config.GPT_ENGINE == 'text-davinci-003':
+				query = context[lang][0] + context[lang][1] + self.stringifyQuestions(lang)
+				print(query)
+			else:
+				raise Exception("Configuration of GPT engine error!!!")
 	
 		return(query)
 
@@ -209,43 +231,47 @@ class VHSsurvey:
 						for langItem in self.langList:
 							r.shuffle(self.theOrder)
 							prompt = self.buildPrompt(langItem)
-							print(prompt)
-							gg = gpt.Gpt()
-							#if config.GPT_ENGINE == 'gpt-3.5-turbo':
-							if config.GPT_ENGINE in ('gpt-3.5-turbo', 'gpt-4'):
-								datCSV = self.csvifyResult(gg.do_chat(prompt),langItem)
-							elif config.GPT_ENGINE == 'text-davinci-003':
-								datCSV = self.csvifyResult(gg.ask_gpt(prompt,langItem),langItem)
-							# elif config.GPT_ENGINE == 'gpt-4':
-							# 	self.fileRaw(gg.do_chat(prompt), langItem)
-							else:
-								raise Exception("Configuration of GPT engine error!!!")
 
-							#if config.GPT_ENGINE != 'gpt-4':
+							if config.ASK_ONEONLY:
+								gptResponse = ''
+								for q in prompt['ques']:
+									theCmd = prompt['cmd'] + '\n' + q
+									print(theCmd)
+									onePrompt = {'cmd': prompt['cmd'], 'ques': q}
+									g = gpt.Gpt()
+									gptPartResponse = g.ask_gpt(onePrompt,langItem)
+									gptResponse += gptPartResponse.strip() + '\n'
+							else:
+								gg = gpt.Gpt()
+								gptResponse = gg.ask_gpt(prompt,langItem)
 							
+							datCSV = self.csvifyResult(gptResponse,langItem)
 							self.fileDat(datCSV)
+
+
 					else: 
 						print('\nChosen language: ', self.langList[whichLang-1])
 						self.theVHSlang = self.langList[whichLang-1]
 						#print(self.stringifyQuestions(self.theVHSlang))
 						r.shuffle(self.theOrder)
 						prompt = self.buildPrompt(self.theVHSlang)
-						print(prompt)
-						g = gpt.Gpt()
-						#if config.GPT_ENGINE == 'gpt-3.5-turbo':
-						if config.GPT_ENGINE in ('gpt-3.5-turbo', 'gpt-4'):
-							datCSV = self.csvifyResult(g.do_chat(prompt),self.theVHSlang)
-						elif config.GPT_ENGINE == 'text-davinci-003':
-							datCSV = self.csvifyResult(g.ask_gpt(prompt,self.theVHSlang),self.theVHSlang)
-						# elif config.GPT_ENGINE == 'gpt-4':
-						# 	self.fileRaw(g.do_chat(prompt), self.theVHSlang)
+
+						if config.ASK_ONEONLY:
+							gptResponse = ''
+							for q in prompt['ques']:
+								theCmd = prompt['cmd'] + '\n' + q
+								print(theCmd)
+								onePrompt = {'cmd': prompt['cmd'], 'ques': q}
+								g = gpt.Gpt()
+								gptPartResponse = g.ask_gpt(onePrompt,self.theVHSlang)
+								gptResponse += gptPartResponse.strip() + '\n'
 						else:
-							raise Exception("Configuration of GPT engine error!!!")
-						
-						#if config.GPT_ENGINE != 'gpt-4':
+							g = gpt.Gpt()
+							gptResponse = g.ask_gpt(prompt,self.theVHSlang)
 
+						datCSV = self.csvifyResult(gptResponse, self.theVHSlang)
 						self.fileDat(datCSV)
-
+						
 				except Exception as e:
 					print('Error: ', type(e).__name__, e)
 					print('\nPlease try again (choose from list)')
