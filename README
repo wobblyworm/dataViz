@@ -3,7 +3,7 @@
 1. In "config.py" 
    - enter your own OpenAI API key
    - make sure "FILE_VHS", "FILE_DATA", "FILE_RAW" and "GPT_ENGINE" are correct
-   - set "ASK_ONEONLY" to True if you want to ask gpt one question at a time (default is False) ==> not implemented yet
+   - set "ASK_ONEONLY" to True if you want to ask gpt one question at a time (default is False)
 2. Run `surveyMgr.py`` (necessary files are hardcoded.. for now)
 3. From the text menu go to (S)elect languages for VHS
 4. select (0) all  or any of the specific available languages
